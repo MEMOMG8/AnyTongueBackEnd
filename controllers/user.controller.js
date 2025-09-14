@@ -223,9 +223,47 @@ const updateUserProfile = async (req, res) => {
   }
 };
 
+/**
+ * Find user by username
+ */
+const findUserByUsername = async (req, res) => {
+  try {
+    const { username } = req.params;
+
+    if (!username) {
+      return res.status(400).json({
+        success: false,
+        message: 'Username is required'
+      });
+    }
+
+    const user = await User.findOne({ username: username.trim() });
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    res.json({
+      success: true,
+      data: user
+    });
+
+  } catch (error) {
+    console.error('Error finding user by username:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error',
+      error: error.message
+    });
+  }
+};
+
 module.exports = {
   createUser,
   loginUser,
   getUserProfile,
-  updateUserProfile
+  updateUserProfile,
+  findUserByUsername
 };

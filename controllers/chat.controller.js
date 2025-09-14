@@ -7,27 +7,19 @@ const Message = require('../models/message.model');
  */
 const createChat = async (req, res) => {
   try {
-    const { otherUserId } = req.body;
+    const { username } = req.body;
     const currentUserId = req.user._id;
 
     // Validate input
-    if (!otherUserId) {
+    if (!username) {
       return res.status(400).json({
         success: false,
-        message: 'Other user ID is required'
+        message: 'Username is required'
       });
     }
 
-    // Check if trying to chat with self
-    if (otherUserId === currentUserId.toString()) {
-      return res.status(400).json({
-        success: false,
-        message: 'Cannot create chat with yourself'
-      });
-    }
-
-    // Verify the other user exists
-    const otherUser = await User.findById(otherUserId);
+    // Verify the other user exists by username
+    const otherUser = await User.findOne({ username: username.trim() });
     if (!otherUser) {
       return res.status(404).json({
         success: false,
@@ -35,9 +27,17 @@ const createChat = async (req, res) => {
       });
     }
 
+    // Check if trying to chat with self
+    if (otherUser._id.toString() === currentUserId.toString()) {
+      return res.status(400).json({
+        success: false,
+        message: 'Cannot create chat with yourself'
+      });
+    }
+
     // Check if chat already exists between these two users
     const existingChat = await Chat.findOne({
-      participants: { $all: [currentUserId, otherUserId] }
+      participants: { $all: [currentUserId, otherUser._id] }
     });
 
     if (existingChat) {
@@ -54,7 +54,7 @@ const createChat = async (req, res) => {
 
     // Create new chat
     const chat = new Chat({
-      participants: [currentUserId, otherUserId],
+      participants: [currentUserId, otherUser._id],
       createdBy: currentUserId
     });
 
