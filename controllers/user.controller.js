@@ -129,7 +129,8 @@ const loginUser = async (req, res) => {
  */
 const getUserProfile = async (req, res) => {
   try {
-    const { userId } = req.params;
+    // Use the authenticated user's ID from the token instead of URL parameter
+    const userId = req.user._id;
 
     const user = await User.findById(userId);
     if (!user) {
@@ -154,8 +155,77 @@ const getUserProfile = async (req, res) => {
   }
 };
 
+/**
+ * Update user profile
+ */
+const updateUserProfile = async (req, res) => {
+  try {
+    const { username, nativeLanguage } = req.body;
+    
+    // Use the authenticated user's ID from the token
+    const userId = req.user._id;
+
+    // Validate input
+    if (!username && !nativeLanguage) {
+      return res.status(400).json({
+        success: false,
+        message: 'At least one field (username or nativeLanguage) is required'
+      });
+    }
+
+    // Check if username already exists (if username is being updated)
+    if (username) {
+      const existingUser = await User.findOne({ 
+        username, 
+        _id: { $ne: userId } 
+      });
+      
+      if (existingUser) {
+        return res.status(400).json({
+          success: false,
+          message: 'Username already exists'
+        });
+      }
+    }
+
+    // Build update object
+    const updateData = {};
+    if (username) updateData.username = username;
+    if (nativeLanguage) updateData.nativeLanguage = nativeLanguage;
+
+    // Update user
+    const user = await User.findByIdAndUpdate(
+      userId,
+      updateData,
+      { new: true, runValidators: true }
+    );
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    res.json({
+      success: true,
+      message: 'Profile updated successfully',
+      data: user
+    });
+
+  } catch (error) {
+    console.error('Error updating user profile:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error',
+      error: error.message
+    });
+  }
+};
+
 module.exports = {
   createUser,
   loginUser,
-  getUserProfile
+  getUserProfile,
+  updateUserProfile
 };
