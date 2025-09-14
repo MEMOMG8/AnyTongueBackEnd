@@ -1,207 +1,164 @@
 # AnyTongue Backend
 
-A real-time, multi-language chat application backend built with Node.js, Express.js, MongoDB, and Socket.IO. Features AI-powered translation using Google Gemini API with a "Translate on Write" strategy.
+A real-time multi-language chat application backend with AI-powered translation and message encryption.
 
 ## Features
 
-- **Real-time messaging** with Socket.IO
-- **Multi-language support** with automatic translation
-- **Translate on Write** strategy for optimal performance
-- **JWT Authentication** with bearer tokens
-- **User management** with secure password hashing
-- **MongoDB** for data persistence with Mongoose ODM
-- **RESTful API** for message management
-- **CORS enabled** for frontend integration
+- 🔐 **User Authentication** - Secure login/signup with JWT tokens
+- 💬 **Real-time Chat** - Socket.io powered instant messaging
+- 🌍 **AI Translation** - Google Gemini AI for multi-language support
+- 🔒 **Message Encryption** - AES-256-CBC encryption for message security
+- 📱 **Mobile Optimized** - Responsive design for all devices
+- 🗄️ **MongoDB Database** - Scalable data storage with Mongoose ODM
 
-## Technology Stack
+## Prerequisites
 
-- **Runtime**: Node.js
-- **Framework**: Express.js
-- **Database**: MongoDB with Mongoose ODM
-- **Real-time**: Socket.IO
-- **AI Translation**: Google Gemini API
-- **Environment**: dotenv for configuration
+- Node.js (>= 16.0.0)
+- npm (>= 8.0.0)
+- MongoDB database
+- Google AI API key
+
+## Installation
+
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd AnyTongueBackEnd
+   ```
+
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
+
+3. **Environment Setup**
+   Create a `.env` file in the root directory:
+   ```env
+   # Database
+   MONGODB_URI=mongodb://localhost:27017/anytongue
+   
+   # JWT Secret
+   JWT_SECRET=your-super-secret-jwt-key
+   
+   # Google AI API
+   GOOGLE_AI_API_KEY=your-google-ai-api-key
+   
+   # Encryption
+   ENCRYPTION_KEY=your-32-character-encryption-key
+   
+   # Server
+   PORT=5000
+   NODE_ENV=development
+   ```
+
+4. **Start the server**
+   ```bash
+   # Development mode (with auto-restart)
+   npm run dev
+   
+   # Production mode
+   npm start
+   ```
+
+## API Endpoints
+
+### Authentication
+- `POST /api/auth/register` - User registration
+- `POST /api/auth/login` - User login
+- `GET /api/auth/profile` - Get user profile
+- `PUT /api/auth/profile` - Update user profile
+
+### Chat
+- `POST /api/chat/create` - Create new chat
+- `GET /api/chat/user-chats` - Get user's chats
+- `DELETE /api/chat/:id` - Delete chat
+
+### Messages
+- `POST /api/messages/send` - Send message
+- `GET /api/messages/:chatId` - Get chat messages
+
+## Socket.io Events
+
+### Client to Server
+- `join-chat` - Join a chat room
+- `leave-chat` - Leave a chat room
+- `send-message` - Send a message
+
+### Server to Client
+- `new-message` - Receive new message
+- `user-joined` - User joined chat
+- `user-left` - User left chat
 
 ## Project Structure
 
 ```
 AnyTongueBackEnd/
-├── models/                 # Mongoose schemas
-│   ├── user.model.js      # User schema
-│   ├── chat.model.js      # Chat schema
-│   └── message.model.js   # Message schema
-├── controllers/            # Route controllers
-│   ├── user.controller.js # User operations
-│   ├── chat.controller.js # Chat operations
-│   └── message.controller.js # Message operations
-├── routes/                 # API routes
-│   ├── api.routes.js      # Main API routes
-│   └── chat.routes.js    # Chat-specific routes
-├── middleware/             # Custom middleware
-│   └── auth.js            # JWT authentication
-├── services/               # Business logic services
+├── controllers/          # Request handlers
+│   ├── auth.controller.js
+│   ├── chat.controller.js
+│   ├── message.controller.js
+│   └── user.controller.js
+├── middleware/           # Custom middleware
+│   └── auth.js
+├── models/              # Database models
+│   ├── chat.model.js
+│   ├── message.model.js
+│   └── user.model.js
+├── routes/              # API routes
+│   └── api.routes.js
+├── services/            # Business logic
+│   ├── encryption.service.js
 │   └── translation.service.js
-├── server.js              # Main application entry point
-├── package.json           # Dependencies and scripts
-├── .env                   # Environment variables
-└── README.md              # This file
+├── server.js            # Main server file
+├── package.json         # Dependencies
+└── README.md           # This file
 ```
 
-## Setup Instructions
+## Security Features
 
-### 1. Install Dependencies
+- **Password Hashing** - bcryptjs for secure password storage
+- **JWT Authentication** - Secure token-based authentication
+- **Message Encryption** - AES-256-CBC encryption for all messages
+- **CORS Protection** - Cross-origin resource sharing configuration
+- **Input Validation** - Request validation and sanitization
 
-```bash
-npm install
-```
+## Development
 
-### 2. Environment Configuration
-
-Update the `.env` file with your actual values:
-
-```env
-PORT=8080
-MONGO_URI=mongodb+srv://username:password@cluster.mongodb.net/anytongue?retryWrites=true&w=majority
-GEMINI_API_KEY=your_actual_gemini_api_key_here
-JWT_SECRET=your_jwt_secret_for_production
-```
-
-### 3. MongoDB Setup
-
-1. Create a MongoDB Atlas account
-2. Create a new cluster
-3. Get your connection string and update `MONGO_URI` in `.env`
-4. Ensure your IP is whitelisted in Atlas
-
-### 4. Google Gemini API Setup
-
-1. Get your API key from Google AI Studio
-2. Update `GEMINI_API_KEY` in `.env`
-
-### 5. Run the Application
-
-Development mode (with auto-restart):
+### Running in Development Mode
 ```bash
 npm run dev
 ```
 
-Production mode:
-```bash
-npm start
-```
+### Environment Variables
+Make sure to set up all required environment variables in your `.env` file:
 
-The server will start on `http://localhost:8080`
+- `MONGODB_URI` - MongoDB connection string
+- `JWT_SECRET` - Secret key for JWT token signing
+- `GOOGLE_AI_API_KEY` - Google AI API key for translation
+- `ENCRYPTION_KEY` - 32-character key for message encryption
+- `PORT` - Server port (default: 5000)
 
-## API Endpoints
+## Deployment
 
-### Public Endpoints (No Authentication Required)
+1. **Set production environment variables**
+2. **Build the application** (if needed)
+3. **Start the server**
+   ```bash
+   npm start
+   ```
 
-#### User Management
-- **POST** `/api/users` - Register a new user
-- **POST** `/api/users/login` - Login user
+## Contributing
 
-**Register User:**
-```bash
-curl -X POST http://localhost:8080/api/users \
-  -H "Content-Type: application/json" \
-  -d '{
-    "username": "alice",
-    "email": "alice@example.com",
-    "password": "password123",
-    "nativeLanguage": "en"
-  }'
-```
+1. Fork the repository
+2. Create a feature branch
+3. Commit your changes
+4. Push to the branch
+5. Create a Pull Request
 
-**Login User:**
-```bash
-curl -X POST http://localhost:8080/api/users/login \
-  -H "Content-Type: application/json" \
-  -d '{
-    "email": "alice@example.com",
-    "password": "password123"
-  }'
-```
+## License
 
-### Protected Endpoints (Bearer Token Required)
+This project is licensed under the ISC License.
 
-#### User Management
-- **GET** `/api/users/:userId` - Get user profile
+## Support
 
-#### Chat Management
-- **POST** `/api/chats` - Create a new chat with another user
-- **GET** `/api/chats/user/:userId` - Get all chats for a user
-- **GET** `/api/chats/:chatId` - Get specific chat details
-- **DELETE** `/api/chats/:chatId` - Delete a chat and all its messages
-
-#### Messaging
-- **POST** `/api/chats/:chatId/messages` - Send a message
-- **GET** `/api/chats/:chatId/messages` - Get messages for a chat
-
-### Example: Create Chat
-```bash
-curl -X POST http://localhost:8080/api/chats \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
-  -d '{
-    "otherUserId": "USER_ID_2"
-  }'
-```
-
-### Example: Send Message
-```bash
-curl -X POST http://localhost:8080/api/chats/CHAT_ID/messages \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
-  -d '{
-    "originalText": "Hello, how are you?"
-  }'
-```
-
-### Example: Get Messages
-```bash
-curl http://localhost:8080/api/chats/CHAT_ID/messages \
-  -H "Authorization: Bearer YOUR_JWT_TOKEN"
-```
-
-## Socket.IO Events
-
-### Client to Server
-- `join-chat` - Join a chat room
-- `leave-chat` - Leave a chat room
-
-### Server to Client
-- `new-message` - New message received in the chat
-
-## Core Logic: "Translate on Write"
-
-1. User sends a message via POST `/api/chats/:chatId/messages`
-2. Backend identifies all participants in the chat
-3. Retrieves each participant's native language
-4. Calls Gemini API to translate the message into each language
-5. Saves a single message document with translations map
-6. Broadcasts the complete message object to all clients in the chat room
-
-## Development Notes
-
-- ✅ Google Gemini API integration is fully implemented
-- ✅ JWT authentication and authorization is complete
-- ✅ All chat creation and management endpoints are working
-- ✅ Real-time messaging with Socket.IO is functional
-- ✅ Optimized translation system (only translates when needed)
-- ✅ All schemas include proper validation and indexing
-- ✅ CORS is configured to allow all origins (adjust for production)
-- ✅ Controllers are organized by functionality (user, chat, message)
-
-## Features Implemented
-
-- **User Management**: Registration, login, profile management
-- **Chat System**: One-on-one chat creation and management
-- **Real-time Messaging**: Socket.IO integration for instant updates
-- **AI Translation**: Google Gemini API with optimized translation logic
-- **Authentication**: JWT bearer token system
-- **Database**: MongoDB with Mongoose ODM
-- **API**: RESTful endpoints with proper error handling
-
-## Ready for Production
-
-The backend is fully functional and ready for frontend integration. All core features are implemented and tested.
+For support, email support@anytongue.com or create an issue in the repository.
