@@ -2,6 +2,7 @@ const Message = require('../models/message.model');
 const Chat = require('../models/chat.model');
 const User = require('../models/user.model');
 const { getTranslations } = require('../services/translation.service');
+const { encryptObject, decryptObject } = require('../services/encryption.service');
 const jwt = require('jsonwebtoken');
 
 /**
@@ -72,23 +73,43 @@ const sendMessage = async (req, res) => {
       translations
     };
 
-    // Save message to database
-    const message = new Message(messageData);
+    // Encrypt the message content before saving
+    const encryptedContent = encryptObject({
+      originalText,
+      translations
+    });
+
+    // Save encrypted message to database
+    const message = new Message({
+      sender: senderId,
+      chat: chatId,
+      encryptedContent,
+      isEncrypted: true
+    });
     await message.save();
 
     // Populate sender information for the response
     await message.populate('sender', 'username nativeLanguage');
 
-    // Broadcast message to all clients in the chat room
+    // Decrypt content for response
+    const decryptedContent = decryptObject(message.encryptedContent);
+    const responseMessage = {
+      ...message.toObject(),
+      originalText: decryptedContent.originalText,
+      translations: decryptedContent.translations,
+      encryptedContent: undefined // Don't send encrypted content to client
+    };
+
+    // Broadcast decrypted message to all clients in the chat room
     const io = req.app.get('io');
     if (io) {
-      io.to(chatId).emit('new-message', message);
+      io.to(chatId).emit('new-message', responseMessage);
     }
 
     res.status(201).json({
       success: true,
       message: 'Message sent successfully',
-      data: message
+      data: responseMessage
     });
 
   } catch (error) {
@@ -115,9 +136,29 @@ const getMessages = async (req, res) => {
       .limit(limit * 1)
       .skip((page - 1) * limit);
 
+    // Decrypt messages if they are encrypted
+    const decryptedMessages = messages.map(message => {
+      if (message.isEncrypted && message.encryptedContent) {
+        try {
+          const decryptedContent = decryptObject(message.encryptedContent);
+          return {
+            ...message.toObject(),
+            originalText: decryptedContent.originalText,
+            translations: decryptedContent.translations,
+            encryptedContent: undefined // Don't send encrypted content to client
+          };
+        } catch (error) {
+          console.error('Error decrypting message:', error);
+          // Return message without decryption if decryption fails
+          return message.toObject();
+        }
+      }
+      return message.toObject();
+    });
+
     res.json({
       success: true,
-      data: messages.reverse() // Return in chronological order
+      data: decryptedMessages.reverse() // Return in chronological order
     });
 
   } catch (error) {

@@ -11,16 +11,26 @@ const messageSchema = new mongoose.Schema({
     ref: 'Chat',
     required: true
   },
+  // Legacy fields for backward compatibility
   originalText: {
     type: String,
-    required: true,
     trim: true,
     maxlength: 1000
   },
   translations: {
     type: Map,
-    of: String,
-    required: true
+    of: String
+  },
+  // New encryption fields
+  encryptedContent: {
+    type: String,
+    required: function() {
+      return this.isEncrypted;
+    }
+  },
+  isEncrypted: {
+    type: Boolean,
+    default: false
   }
 }, {
   timestamps: true
