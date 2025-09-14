@@ -5,8 +5,20 @@ const ALGORITHM = 'aes-256-cbc';
 const KEY_LENGTH = 32; // 256 bits
 const IV_LENGTH = 16; // 128 bits
 
-// Generate a random encryption key (in production, this should be stored securely)
-const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY || crypto.randomBytes(KEY_LENGTH);
+// Get encryption key from environment variable
+const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY;
+
+// Validate encryption key
+if (!ENCRYPTION_KEY) {
+  throw new Error('ENCRYPTION_KEY environment variable is required');
+}
+
+if (ENCRYPTION_KEY.length !== 64) { // 32 bytes = 64 hex characters
+  throw new Error('ENCRYPTION_KEY must be exactly 64 hex characters (32 bytes)');
+}
+
+// Convert hex string to buffer
+const ENCRYPTION_KEY_BUFFER = Buffer.from(ENCRYPTION_KEY, 'hex');
 
 /**
  * Encrypt a text string
@@ -19,7 +31,7 @@ function encryptText(text) {
     const iv = crypto.randomBytes(IV_LENGTH);
     
     // Create cipher
-    const cipher = crypto.createCipheriv(ALGORITHM, ENCRYPTION_KEY, iv);
+    const cipher = crypto.createCipheriv(ALGORITHM, ENCRYPTION_KEY_BUFFER, iv);
     
     // Encrypt the text
     let encrypted = cipher.update(text, 'utf8', 'base64');
@@ -53,7 +65,7 @@ function decryptText(encryptedData) {
     const encrypted = combined.slice(IV_LENGTH);
     
     // Create decipher
-    const decipher = crypto.createDecipheriv(ALGORITHM, ENCRYPTION_KEY, iv);
+    const decipher = crypto.createDecipheriv(ALGORITHM, ENCRYPTION_KEY_BUFFER, iv);
     
     // Decrypt the data
     let decrypted = decipher.update(encrypted, null, 'utf8');

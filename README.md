@@ -7,7 +7,7 @@ A real-time multi-language chat application backend with AI-powered translation 
 - 🔐 **User Authentication** - Secure login/signup with JWT tokens
 - 💬 **Real-time Chat** - Socket.io powered instant messaging
 - 🌍 **AI Translation** - Google Gemini AI for multi-language support
-- 🔒 **Message Encryption** - AES-256-CBC encryption for message security
+- 🔒 **Message Encryption** - AES-256-CBC encryption using Node.js built-in crypto module
 - 📱 **Mobile Optimized** - Responsive design for all devices
 - 🗄️ **MongoDB Database** - Scalable data storage with Mongoose ODM
 
@@ -43,8 +43,8 @@ A real-time multi-language chat application backend with AI-powered translation 
    # Google AI API
    GOOGLE_AI_API_KEY=your-google-ai-api-key
    
-   # Encryption
-   ENCRYPTION_KEY=your-32-character-encryption-key
+   # Encryption (64 hex characters = 32 bytes)
+   ENCRYPTION_KEY=your-64-hex-character-encryption-key
    
    # Server
    PORT=5000
@@ -118,7 +118,7 @@ AnyTongueBackEnd/
 
 - **Password Hashing** - bcryptjs for secure password storage
 - **JWT Authentication** - Secure token-based authentication
-- **Message Encryption** - AES-256-CBC encryption for all messages
+- **Message Encryption** - AES-256-CBC encryption using Node.js built-in crypto module
 - **CORS Protection** - Cross-origin resource sharing configuration
 - **Input Validation** - Request validation and sanitization
 

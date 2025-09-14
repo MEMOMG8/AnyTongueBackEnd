@@ -22,8 +22,8 @@
    # Google AI API Key
    GOOGLE_AI_API_KEY=your-google-ai-api-key-here
    
-   # Encryption Key (32 characters)
-   ENCRYPTION_KEY=your-32-character-encryption-key-here
+   # Encryption Key (64 hex characters = 32 bytes)
+   ENCRYPTION_KEY=your-64-hex-character-encryption-key-here
    
    # Server
    PORT=5000
