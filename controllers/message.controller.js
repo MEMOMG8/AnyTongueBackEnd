@@ -81,7 +81,9 @@ const sendMessage = async (req, res) => {
 
     // Broadcast message to all clients in the chat room
     const io = req.app.get('io');
-    io.to(chatId).emit('new-message', message);
+    if (io) {
+      io.to(chatId).emit('new-message', message);
+    }
 
     res.status(201).json({
       success: true,

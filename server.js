@@ -32,27 +32,19 @@ mongoose.connect(process.env.MONGO_URI)
 
 // Routes
 app.use('/api', require('./routes/api.routes'));
-app.use('/api/chats', require('./routes/chat.routes'));
 
 // Socket.IO connection handling
 io.on('connection', (socket) => {
-  console.log('User connected:', socket.id);
-
   // Join chat room
-  socket.on('join-chat', (chatId) => {
+  socket.on('join-chat', (data) => {
+    const chatId = data.chatId || data;
     socket.join(chatId);
-    console.log(`User ${socket.id} joined chat ${chatId}`);
   });
 
   // Leave chat room
-  socket.on('leave-chat', (chatId) => {
+  socket.on('leave-chat', (data) => {
+    const chatId = data.chatId || data;
     socket.leave(chatId);
-    console.log(`User ${socket.id} left chat ${chatId}`);
-  });
-
-  // Handle disconnection
-  socket.on('disconnect', () => {
-    console.log('User disconnected:', socket.id);
   });
 });
 
